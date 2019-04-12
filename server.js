@@ -1,12 +1,17 @@
 require('dotenv').config()
+const uuidv4 = require('uuid/v4');
+var sha1 = require('sha1');
 const express = require('express');
 const bodyParser = require('body-parser');
 const ngrok = require('ngrok');
+const path = require('path');
 const decodeJWT = require('did-jwt').decodeJWT;
 const { Credentials } = require('uport-credentials');
 const transports = require('uport-transports').transport
 const message = require('uport-transports').message.util
+const EventEmitter = require('eventemitter3');
 
+const events = require('./events');
 
 let endpoint = ''
 
@@ -19,34 +24,54 @@ const credentials = new Credentials({
   privateKey: process.env.APP_PRIVATE_KEY
 })
 
-console.log(process.env.APP_PRIVATE_KEY)
-// in an express application
-app.get("/login", (req, res) => {
+// Test server authentication
+app.get('/', function(req, res) {
+  res.sendFile(path.join(__dirname + '/index.html'));
+});
+
+// Test client authentication
+app.get('/client', function(req, res) {
+  res.sendFile(path.join(__dirname + '/index_client.html'));
+});
+
+// Handle login and return the QR code.
+app.post("/login/", (req, res) => {
+  var tagId = sha1(uuidv4());
   credentials.createDisclosureRequest({
     notifications: true,
     requested: ['name', 'country'],
-    callbackUrl: endpoint + "/callback"
+    callbackUrl: endpoint + `/callback/${tagId}`
   }).then(requestToken => {
     console.log(decodeJWT(requestToken));
     const uri = message.paramsToQueryString(
       message.messageToURI(requestToken), 
       {callback_type: 'post'});
+
     const qr = transports.ui.getImageDataURI(uri);
-    res.send(`<div><img src="${qr}"/></div>`)
+    transports.ui.requested
+    res.json({
+      'tagId': tagId,
+      'image': qr
+    })
   })
 })
   
-app.post("/callback", (req, res) => {
+app.post("/callback/:tagId", (req, res) => {
+  tagId = req.params.tagId;
+
   const jwt = req.body.access_token
   // Do something with the jwt
-  console.log(`JWT=${jwt}`);
   credentials.authenticateDisclosureResponse(jwt).then(credentials => {
+    
     console.log(credentials);
     // Validate the information and apply authorization logic
+    events.publish(tagId, jwt);
   }).catch( err => {
     console.log(err)
   })
 })
+
+app.get('/events/:tagId', events.subscribe);
 
 const server = app.listen(8088, () => {
   ngrok.connect(8088).then(ngrokUrl => {
