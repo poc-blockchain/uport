@@ -7,7 +7,7 @@ A POC try [uPort](https://www.uport.me/) authentication.
 ### Prerequisite
 
 1. Node version v10.15.3
-2. Install uPort app for iOS/Android at [https://www.uport.me/] (https://www.uport.me/)
+2. Install uPort app for iOS/Android at [uport.me](https://www.uport.me)
 
 ### Install
 
@@ -28,7 +28,7 @@ Login Service running, open at https://bf8ac40b.ngrok.io
 ### Test client authentication
 
 1. Access the link like https://bf8ac40b.ngrok.io/client
-2. Scan the barcode image by the uPort app download from [https://www.uport.me/] (https://www.uport.me/)
+2. Scan the barcode image by the uPort app download from [uport.me](https://www.uport.me)
 3. The uPort app will display the allow access notification, click Share to Login
 4. The server response with the address: Congratulations you are now logged in`. Here is your DID identifier: {"did":"did:ethr:0xf28b..."}
 
@@ -36,7 +36,7 @@ Login Service running, open at https://bf8ac40b.ngrok.io
 
 1. Access the link like https://bf8ac40b.ngrok.io
 2. Click login then the server will return the barcode image
-3. Scan the barcode image by the uPort app download from [https://www.uport.me/] (https://www.uport.me/)
+3. Scan the barcode image by the uPort app download from [uport.me](https://www.uport.me/)
 4. The uPort app will display the allow access notification, click Share to Login
 5. The JWT will display on the browser.
 
@@ -53,9 +53,9 @@ There is the suggestion to fix this issue [Issue #245](https://github.com/uport-
 
 * Once user scan the barcode, uport will send the credential via the callback url. The server handle this request but the JWT need to be transfer to client.
 
-Solution: We can use long pulling or SSE to push the JWT back to client.
+* Solution: We can use long pulling or SSE to push the JWT back to client.
 
-* The https://demo.uport.me are using long pulling but I think long pulling is wasted the server resourse then I come up with the SSE (Server Send Event).
+* The [https://demo.uport.me](https://demo.uport.me) are using long pulling but I think long pulling is wasted the server resourse then I come up with the SSE (Server Send Event).
 
 ### Reference links
 
